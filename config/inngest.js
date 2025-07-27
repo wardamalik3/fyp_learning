@@ -4,16 +4,31 @@ import User from "@/models/User";
 
 export const inngest = new Inngest({ id: "quickcart-next" });
 
-// ✅ CREATE
+//  CREATE
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event, step }) => {
-    const { id, first_name, last_name, email_address, image_url } = event.data;
+    const {
+      id,
+      first_name,
+      last_name,
+      image_url,
+      email_addresses,
+      primary_email_address_id,
+    } = event.data;
+
+    const email = email_addresses.find(
+      (e) => e.id === primary_email_address_id
+    )?.email_address;
+
+    if (!email) {
+      throw new Error("Primary email address not found.");
+    }
 
     const userData = {
       _id: id,
-      email: email_address,
+      email,
       name: `${first_name} ${last_name}`,
       imageUrl: image_url,
     };
@@ -28,7 +43,7 @@ export const syncUserCreation = inngest.createFunction(
   }
 );
 
-// ✅ UPDATE
+//  UPDATE
 export const syncUserUpdation = inngest.createFunction(
   { id: "update-user-from-clerk" },
   { event: "clerk/user.updated" },
@@ -52,7 +67,7 @@ export const syncUserUpdation = inngest.createFunction(
   }
 );
 
-// ✅ DELETE
+//  DELETE
 export const syncUserDeletion = inngest.createFunction(
   { id: "delete-user-with-clerk" },
   { event: "clerk/user.deleted" },
