@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
-
+import {getAuth} from '@clerk/nextjs/server'
 
 export const AppContext = createContext();
 
@@ -27,7 +27,24 @@ export const AppContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({})
 
     const fetchProductData = async () => {
-        setProducts(productsDummyData)
+       try{
+
+        const {data}=await axios.get('/api/product/list')
+         console.log("Fetched Products:", data);
+        if(data.success)
+        {
+            setProducts(data.products)
+        }
+        else
+        {
+            toast.error(data.message)
+        }
+       }
+       catch(error)
+       {
+         toast.error(error.message)
+
+       }
     }
 
     const fetchUserData = async () => {
@@ -39,7 +56,7 @@ export const AppContextProvider = (props) => {
 
             }
             const token=await getToken()
-            const {data} =await axios.get('/api/user/data',{headers:{Authorization:`Bearer${token}`}} )
+            const {data} =await axios.get('/api/user/data',{headers:{ Authorization: `Bearer ${token}`}} )
 
             if(data)
             {
@@ -71,6 +88,21 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = 1;
         }
         setCartItems(cartData);
+      
+        if(user)
+        {
+            try{
+                const token=await getToken()
+                await axios.post('/api/cart/update', {cartData},{headers:{Authorization:`Bearer ${token}`}})
+                toast.success('Item added to cart successfully')
+            }
+            catch(error)
+            {
+                toast.error(error.message)
+
+            }
+
+        }
 
     }
 
@@ -83,6 +115,20 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = quantity;
         }
         setCartItems(cartData)
+          if(user)
+        {
+            try{
+                const token=await getToken()
+                await axios.post('/api/cart/update', {cartData},{headers:{Authorization:`Bearer ${token}`}})
+                toast.success('Item updated succcessfully')
+            }
+            catch(error)
+            {
+                toast.error(error.message)
+
+            }
+
+        }
 
     }
 
