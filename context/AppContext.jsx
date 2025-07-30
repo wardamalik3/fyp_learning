@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
-import {getAuth} from '@clerk/nextjs/server'
+
 
 export const AppContext = createContext();
 
