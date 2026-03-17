@@ -17,7 +17,7 @@ export async function GET(request) {
     }
     await connectDB()
     Address.length
-    const orders=await Order.find({}).populate('address items.product')
+    const orders = await Order.find({}).populate('address').populate('items.product');
     return NextResponse.json({success:true, orders})
 
     

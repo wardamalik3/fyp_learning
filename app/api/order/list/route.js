@@ -13,7 +13,7 @@ export async function GET(request) {
     Address.length;
     Product.length;
 
-   const orders=await Order.find({}).populate('address itema.product')
+  const orders = await Order.find({}).populate('address').populate('items.product');
     return NextResponse.json({success:true,orders})
 
   } catch (error) {
